@@ -47,6 +47,16 @@ class PlayCommand extends Command
                 $output->writeln("<comment>Sending message >> {$message}</comment>");
                 fwrite($client, $message);
                 $output->writeln("<info>Sent</info>");
+            } elseif ($command === 'send_startup') {
+                $options = $this->getOptions($user_input);
+                $protocol_version = pack('n', 3) . pack('n', 0);
+                $startup = $protocol_version . "user\0{$options['user']}\0" .
+                    "database\0{$options['database']}\0client_encoding\0'utf-8'\0\0";
+                $length = strlen($startup) + 4; // including itself, 4 bytes
+
+                $output->writeln("<comment>Sending startup message</comment>");
+                fwrite($client, pack('N', $length) . $startup);
+                $output->writeln("<info>Sent</info>");
             } elseif ($command === 'get') {
                 $client_output = fread($client, array_shift($params));
                 $output->writeln($client_output);
@@ -115,5 +125,21 @@ class PlayCommand extends Command
 
             return [$message_code, $message_length, $message];
         }
+    }
+
+    /**
+     * @param $user_input
+     * @return array
+     */
+    private function getOptions($user_input)
+    {
+        $options = [];
+        foreach (preg_split('/\s+/', $user_input) as $param) {
+            if (preg_match('/--(.+)=(.+)/', $param, $matches)) {
+                $options[$matches[1]] = $matches[2];
+            }
+        }
+
+        return $options;
     }
 }

@@ -50,7 +50,63 @@ class PlayCommand extends Command
             } elseif ($command === 'get') {
                 $client_output = fread($client, array_shift($params));
                 $output->writeln($client_output);
+            } elseif ($command === 'get_message') {
+                list($message_code, $message_length, $message) = $this->get_message($client);
+                $output->writeln("<info>{$message_code} (length $message_length)</info>");
+                $output->writeln("<info>{$message}</info>");
             }
         } while ($user_input !== 'exit');
+    }
+
+    /**
+     * @param $client
+     * @return array
+     */
+    private function get_message($client)
+    {
+        $binary_code = fread($client, 1);
+        $message_code = current(unpack('a', $binary_code));
+        if ($message_code === 'R') {
+            $message_length = current(unpack('N', fread($client, 4)));
+            $message = current(unpack('N', fread($client, $message_length - 4)));
+
+            return array($message_code, $message_length, $message);
+        } elseif ($message_code === 'S') {
+            $message_length = current(unpack('N', fread($client, 4)));
+            $message = fread($client, $message_length - 4);
+            $message = json_encode(explode("\0", trim($message)));
+
+            return array($message_code, $message_length, $message);
+        } elseif ($message_code === 'Z') {
+            $message_length = current(unpack('N', fread($client, 4)));
+            $message = fread($client, $message_length - 4);
+
+            return array($message_code, $message_length, $message);
+        } elseif ($message_code === 'K') {
+            $message_length = current(unpack('N', fread($client, 4)));
+            $message = current(unpack('N', fread($client, $message_length - 4)));
+
+            return array($message_code, $message_length, $message);
+        } elseif ($message_code === 'T') {
+            $message_length = current(unpack('N', fread($client, 4)));
+            $message = fread($client, $message_length - 4);
+
+            return array($message_code, $message_length, $message);
+        } elseif ($message_code === 'D') {
+            $message_length = current(unpack('N', fread($client, 4)));
+            $message = fread($client, $message_length - 4);
+
+            return array($message_code, $message_length, $message);
+        } elseif ($message_code === 'C') {
+            $message_length = current(unpack('N', fread($client, 4)));
+            $message = fread($client, $message_length - 4);
+
+            return array($message_code, $message_length, $message);
+        } else {
+            $message_length = current(unpack('N', fread($client, 4)));
+            $message = fread($client, $message_length - 4);
+
+            return array($message_code, $message_length, $message);
+        }
     }
 }

@@ -51,12 +51,12 @@ class PlayCommand extends Command
                 $client_output = fread($client, array_shift($params));
                 $output->writeln($client_output);
             } elseif ($command === 'get_message') {
-                list($message_code, $message_length, $message) = $this->get_message($client);
+                list($message_code, $message_length, $message) = $this->getMessage($client);
                 $output->writeln("<info>{$message_code} (length $message_length)</info>");
                 $output->writeln("<info>{$message}</info>");
             } elseif ($command === 'get_messages') {
                 do {
-                    list($message_code, $message_length, $message) = $this->get_message($client);
+                    list($message_code, $message_length, $message) = $this->getMessage($client);
                     $output->writeln("{$message_code} (length $message_length)");
                     $output->writeln("{$message}");
                     $output->writeln("<comment>---------------------------------</comment>");
@@ -69,7 +69,7 @@ class PlayCommand extends Command
      * @param $client
      * @return array
      */
-    private function get_message($client)
+    private function getMessage($client)
     {
         $binary_code = fread($client, 1);
         $message_code = current(unpack('a', $binary_code));

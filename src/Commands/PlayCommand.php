@@ -54,6 +54,13 @@ class PlayCommand extends Command
                 list($message_code, $message_length, $message) = $this->get_message($client);
                 $output->writeln("<info>{$message_code} (length $message_length)</info>");
                 $output->writeln("<info>{$message}</info>");
+            } elseif ($command === 'get_messages') {
+                do {
+                    list($message_code, $message_length, $message) = $this->get_message($client);
+                    $output->writeln("{$message_code} (length $message_length)");
+                    $output->writeln("{$message}");
+                    $output->writeln("<comment>---------------------------------</comment>");
+                } while ($message_code !== 'Z');
             }
         } while ($user_input !== 'exit');
     }

@@ -77,43 +77,43 @@ class PlayCommand extends Command
             $message_length = current(unpack('N', fread($client, 4)));
             $message = current(unpack('N', fread($client, $message_length - 4)));
 
-            return array($message_code, $message_length, $message);
+            return [$message_code, $message_length, $message];
         } elseif ($message_code === 'S') {
             $message_length = current(unpack('N', fread($client, 4)));
             $message = fread($client, $message_length - 4);
             $message = json_encode(explode("\0", trim($message)));
 
-            return array($message_code, $message_length, $message);
+            return [$message_code, $message_length, $message];
         } elseif ($message_code === 'Z') {
             $message_length = current(unpack('N', fread($client, 4)));
             $message = fread($client, $message_length - 4);
 
-            return array($message_code, $message_length, $message);
+            return [$message_code, $message_length, $message];
         } elseif ($message_code === 'K') {
             $message_length = current(unpack('N', fread($client, 4)));
             $message = current(unpack('N', fread($client, $message_length - 4)));
 
-            return array($message_code, $message_length, $message);
+            return [$message_code, $message_length, $message];
         } elseif ($message_code === 'T') {
             $message_length = current(unpack('N', fread($client, 4)));
             $message = fread($client, $message_length - 4);
 
-            return array($message_code, $message_length, $message);
+            return [$message_code, $message_length, $message];
         } elseif ($message_code === 'D') {
             $message_length = current(unpack('N', fread($client, 4)));
             $message = fread($client, $message_length - 4);
 
-            return array($message_code, $message_length, $message);
+            return [$message_code, $message_length, $message];
         } elseif ($message_code === 'C') {
             $message_length = current(unpack('N', fread($client, 4)));
             $message = fread($client, $message_length - 4);
 
-            return array($message_code, $message_length, $message);
+            return [$message_code, $message_length, $message];
         } else {
             $message_length = current(unpack('N', fread($client, 4)));
             $message = fread($client, $message_length - 4);
 
-            return array($message_code, $message_length, $message);
+            return [$message_code, $message_length, $message];
         }
     }
 }

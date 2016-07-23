@@ -7,7 +7,7 @@ How can I make developers badass?
 ### CLI
 
 ```
-bin/php-postgres localhost --port=5432
+bin/php-postgres play localhost --port=5432
 # send a message
 > send 42::int32 3::int16 0::int16 user\0zacharyrankin\0database\0dev_greendot\0\0
 # send startup

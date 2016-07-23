@@ -1,0 +1,20 @@
+{
+    "name": "zacharyrankin/php-postgres",
+    "description": "php-postgres is a pure php postgres client, designed to help developers understand what is happening when they send a query to Postgres.",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Postgres\\": "src/"
+        }
+    },
+    "require-dev": {
+        "symfony/console": "^3.1"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Zachary Rankin",
+            "email": "rankin.zachary@gmail.com"
+        }
+    ]
+}

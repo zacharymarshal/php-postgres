@@ -9,20 +9,13 @@
          processIsolation="false"
          stopOnFailure="false"
          syntaxCheck="false"
-         bootstrap="tests/bootstrap.php"
+         bootstrap="src/bootstrap.php"
 >
     <testsuites>
         <testsuite name="PHP-Postgres Test Suite">
             <directory>./tests/Commands/</directory>
         </testsuite>
     </testsuites>
-
-    <groups>
-        <exclude>
-            <group>slow</group>
-            <group>legacy</group>
-        </exclude>
-    </groups>
 
     <filter>
         <whitelist>

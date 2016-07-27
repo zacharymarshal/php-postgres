@@ -8,7 +8,8 @@
         }
     },
     "require-dev": {
-        "symfony/console": "^3.1"
+        "symfony/console": "^3.1",
+        "phpunit/phpunit": "*"
     },
     "license": "MIT",
     "authors": [

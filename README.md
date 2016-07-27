@@ -1,5 +1,7 @@
 # php-postgres
 
+[![Build Status](https://travis-ci.org/blackstar257/php-postgres.svg?branch=master)](https://travis-ci.org/blackstar257/php-postgres)
+
 php-postgres is a pure php postgres client, designed to help developers understand what is happening when they send a query to Postgres.
 
 How can I make developers badass?

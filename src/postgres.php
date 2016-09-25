@@ -92,3 +92,48 @@ function get($conn, callable $callback)
         exit;
     }
 }
+/**
+ * @param string $msg
+ * @return array
+ */
+function tokenizeMessage($msg)
+{
+    $tokens = [];
+    $length = strlen($msg);
+    while ($length) {
+        $token = $tokens[] = getMessageToken($msg);
+
+        $token_length = strlen($token['value']);
+        $msg = substr($msg, $token_length);
+        $length -= $token_length;
+    }
+
+    return $tokens;
+}
+
+/**
+ * @param string $msg
+ * @return array
+ */
+function getMessageToken($msg)
+{
+    if (preg_match("/^(\d+)::int16/", $msg, $matches)) {
+        return [
+            'type'   => 'int16',
+            'value'  => $matches[0],
+            'number' => $matches[1],
+        ];
+    }
+
+    if (preg_match("/^\s+/", $msg, $matches)) {
+        return [
+            'type'   => 'whitespace',
+            'value'  => $matches[0],
+        ];
+    }
+
+    return [
+        'type'  => 'unknown',
+        'value' => $msg,
+    ];
+}

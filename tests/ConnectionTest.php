@@ -24,10 +24,12 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
         $conn = \Postgres\connect('tcp://localhost:5432');
         \Postgres\send($conn, '3::int16 0::int16' .
             ' user\0zacharyrankin\0database\0dev_template\0\0');
-        $result = \Postgres\get($conn);
-        var_dump($result);
-        \Postgres\send($conn, 'BEGIN\0', 'Q');
-        $result = \Postgres\get($conn);
+        $result = \Postgres\get($conn, function($msg_code, $msg) {
+            var_dump($msg_code);
+        });
+        $result = \Postgres\get($conn, function($msg_code, $msg) {
+            var_dump($msg_code);
+        });
         var_dump($result);
         exit;
     }

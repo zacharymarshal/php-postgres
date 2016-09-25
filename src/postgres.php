@@ -99,7 +99,7 @@ function createMessage($msg, $msg_code = '')
                 $new_msg .= pack('N', $msg_token['number']);
                 break;
             case 'string':
-                $new_msg .= $msg_token['string'];
+                $new_msg .= str_replace('\0', "\0", $msg_token['string']);
                 break;
         }
     }

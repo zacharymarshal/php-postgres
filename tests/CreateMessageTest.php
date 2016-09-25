@@ -98,6 +98,11 @@ class CreateMessageTest extends \PHPUnit_Framework_TestCase
                 '',
                 pack('N', 8) . pack('n', 3) . pack('n', 0) . "\0"
             ],
+            [
+                '"user\0postgres\0database\0postgres\0"::string',
+                '',
+                pack('N', 36) . "user\0postgres\0database\0postgres\0\0"
+            ]
         ];
     }
 }

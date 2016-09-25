@@ -75,4 +75,29 @@ class CreateMessageTest extends \PHPUnit_Framework_TestCase
             ],
         ];
     }
+
+    /**
+     * @dataProvider createMessageProvider
+     */
+    public function testCreateMessage($msg, $msg_code, $expected)
+    {
+        $protocol_msg = \Postgres\createMessage($msg, $msg_code);
+        $this->assertEquals($expected, $protocol_msg);
+    }
+
+    public function createMessageProvider()
+    {
+        return [
+            [
+                '"SELECT 1"::string',
+                'Q',
+                'Q' . pack('N', 12) . "SELECT 1\0"
+            ],
+            [
+                '3::int16 0::int16',
+                '',
+                pack('N', 8) . pack('n', 3) . pack('n', 0) . "\0"
+            ],
+        ];
+    }
 }

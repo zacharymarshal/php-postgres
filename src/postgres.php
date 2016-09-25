@@ -4,6 +4,7 @@ namespace Postgres;
 
 /**
  * @param $url
+ * @param array $options
  * @return resource
  * @throws \Exception
  */
@@ -44,20 +45,7 @@ function disconnect($conn)
  */
 function send($conn, $msg, $msg_code = '')
 {
-    $msg_pieces = [];
-    foreach (explode(' ', $msg) as $msg_piece) {
-        $msg_piece = str_replace('\0', "\0", $msg_piece);
-        if (preg_match('/([^\s]+)::int16$/', $msg_piece, $matches)) {
-            $msg_piece = pack('n', $matches[1]);
-        } elseif (preg_match('/([^\s]+)::int32$/', $msg_piece, $matches)) {
-            $msg_piece = pack('N', $matches[1]);
-        }
-        $msg_pieces[] = $msg_piece;
-    }
-
-    $msg = implode('', $msg_pieces);
-    $msg_length = pack('N', strlen($msg) + 4); // include itself 4 bytes
-    $msg = $msg_code . $msg_length . $msg;
+    $msg = createMessage($msg, $msg_code);
     $send_result = socket_send($conn, $msg, strlen($msg), 0);
     if (!$send_result) {
         throw new \Exception("TODO: Send failed");
@@ -92,6 +80,34 @@ function get($conn, callable $callback)
         exit;
     }
 }
+
+/**
+ * @param $msg
+ * @param string $msg_code
+ * @return string
+ */
+function createMessage($msg, $msg_code = '')
+{
+    $msg_tokens = tokenizeMessage($msg);
+    $new_msg = '';
+    foreach ($msg_tokens as $msg_token) {
+        switch ($msg_token['type']) {
+            case 'int16':
+                $new_msg .= pack('n', $msg_token['number']);
+                break;
+            case 'int32':
+                $new_msg .= pack('N', $msg_token['number']);
+                break;
+            case 'string':
+                $new_msg .= $msg_token['string'];
+                break;
+        }
+    }
+    $msg_length = pack('N', strlen($new_msg) + 4); // include itself 4 bytes
+
+    return $msg_code . $msg_length . $new_msg . "\0";
+}
+
 /**
  * @param string $msg
  * @return array

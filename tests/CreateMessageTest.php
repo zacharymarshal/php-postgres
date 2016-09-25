@@ -57,6 +57,22 @@ class CreateMessageTest extends \PHPUnit_Framework_TestCase
                     ['type' => 'int16', 'value' => '180::int16', 'number' => '180'],
                 ]
             ],
+            [
+                '"SELECT 1"::string',
+                [
+                    ['type' => 'string', 'value' => '"SELECT 1"::string', 'string' => 'SELECT 1'],
+                ]
+            ],
+            [
+                '"SELECT * FROM "table""::string',
+                [
+                    [
+                        'type'   => 'string',
+                        'value'  => '"SELECT * FROM "table""::string',
+                        'string' => 'SELECT * FROM "table"',
+                    ],
+                ]
+            ],
         ];
     }
 }

@@ -133,6 +133,14 @@ function getMessageToken($msg)
         ];
     }
 
+    if (preg_match("/^\"(.+)\"::string/", $msg, $matches)) {
+        return [
+            'type'   => 'string',
+            'value'  => $matches[0],
+            'string' => $matches[1],
+        ];
+    }
+
     if (preg_match("/^\s+/", $msg, $matches)) {
         return [
             'type'   => 'whitespace',

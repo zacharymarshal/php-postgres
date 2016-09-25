@@ -125,6 +125,14 @@ function getMessageToken($msg)
         ];
     }
 
+    if (preg_match("/^(\d+)::int32/", $msg, $matches)) {
+        return [
+            'type'   => 'int32',
+            'value'  => $matches[0],
+            'number' => $matches[1],
+        ];
+    }
+
     if (preg_match("/^\s+/", $msg, $matches)) {
         return [
             'type'   => 'whitespace',

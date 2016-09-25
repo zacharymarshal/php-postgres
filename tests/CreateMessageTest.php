@@ -43,6 +43,20 @@ class CreateMessageTest extends \PHPUnit_Framework_TestCase
                     ['type' => 'int16', 'value' => '1::int16', 'number' => '1'],
                 ]
             ],
+            [
+                "100::int32",
+                [
+                    ['type' => 'int32', 'value' => '100::int32', 'number' => '100'],
+                ]
+            ],
+            [
+                "99::int32 180::int16",
+                [
+                    ['type' => 'int32', 'value' => '99::int32', 'number' => '99'],
+                    ['type' => 'whitespace', 'value' => ' '],
+                    ['type' => 'int16', 'value' => '180::int16', 'number' => '180'],
+                ]
+            ],
         ];
     }
 }

@@ -103,9 +103,11 @@ function createMessage($msg, $msg_code = '')
                 break;
         }
     }
+    $new_msg .= "\0"; // End with NULL character
+
     $msg_length = pack('N', strlen($new_msg) + 4); // include itself 4 bytes
 
-    return $msg_code . $msg_length . $new_msg . "\0";
+    return $msg_code . $msg_length . $new_msg;
 }
 
 /**

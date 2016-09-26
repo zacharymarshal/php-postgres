@@ -91,17 +91,17 @@ class CreateMessageTest extends \PHPUnit_Framework_TestCase
             [
                 '"SELECT 1"::string',
                 'Q',
-                'Q' . pack('N', 12) . "SELECT 1\0"
+                'Q' . pack('N', 13) . "SELECT 1\0"
             ],
             [
                 '3::int16 0::int16',
                 '',
-                pack('N', 8) . pack('n', 3) . pack('n', 0) . "\0"
+                pack('N', 9) . pack('n', 3) . pack('n', 0) . "\0"
             ],
             [
                 '"user\0postgres\0database\0postgres\0"::string',
                 '',
-                pack('N', 36) . "user\0postgres\0database\0postgres\0\0"
+                pack('N', 37) . "user\0postgres\0database\0postgres\0\0"
             ]
         ];
     }

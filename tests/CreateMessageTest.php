@@ -73,15 +73,41 @@ class CreateMessageTest extends \PHPUnit_Framework_TestCase
                     ],
                 ]
             ],
+            [
+                'Q::code LENGTH "SELECT 1"::string \0',
+                [
+                    [
+                        'type'  => 'code',
+                        'value' => 'Q::code',
+                        'code'  => 'Q',
+                    ],
+                    ['type' => 'whitespace', 'value' => ' '],
+                    [
+                        'type'  => 'const',
+                        'value' => 'LENGTH',
+                    ],
+                    ['type' => 'whitespace', 'value' => ' '],
+                    [
+                        'type'   => 'string',
+                        'value'  => '"SELECT 1"::string',
+                        'string' => 'SELECT 1',
+                    ],
+                    ['type' => 'whitespace', 'value' => ' '],
+                    [
+                        'type'  => 'const',
+                        'value' => '\0',
+                    ],
+                ]
+            ],
         ];
     }
 
     /**
      * @dataProvider createMessageProvider
      */
-    public function testCreateMessage($msg, $msg_code, $expected)
+    public function testCreateMessage($msg, $expected)
     {
-        $protocol_msg = \Postgres\createMessage($msg, $msg_code);
+        $protocol_msg = \Postgres\createMessage($msg);
         $this->assertEquals($expected, $protocol_msg);
     }
 
@@ -89,19 +115,20 @@ class CreateMessageTest extends \PHPUnit_Framework_TestCase
     {
         return [
             [
-                '"SELECT 1"::string',
-                'Q',
+                'Q::code LENGTH "SELECT 1"::string \0',
                 'Q' . pack('N', 13) . "SELECT 1\0"
             ],
             [
-                '3::int16 0::int16',
-                '',
+                'LENGTH 3::int16 0::int16 \0',
                 pack('N', 9) . pack('n', 3) . pack('n', 0) . "\0"
             ],
             [
-                '"user\0postgres\0database\0postgres\0"::string',
-                '',
-                pack('N', 37) . "user\0postgres\0database\0postgres\0\0"
+                'LENGTH 3::int16 0::int16 "user\0postgres\0database\0postgres\0"::string \0',
+                pack('N', 41) . pack('n', 3) . pack('n', 0) . "user\0postgres\0database\0postgres\0\0"
+            ],
+            [
+                'Q::code LENGTH "SELECT 1"::string \0',
+                'Q' . pack('N', 13) . "SELECT 1\0"
             ]
         ];
     }

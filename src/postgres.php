@@ -134,31 +134,49 @@ function get($conn)
 
 /**
  * @param $msg
- * @param string $msg_code
  * @return string
  */
-function createMessage($msg, $msg_code = '')
+function createMessage($msg)
 {
     $msg_tokens = tokenizeMessage($msg);
-    $new_msg = '';
+    $insert_length = false;
+    $msg_body = '';
     foreach ($msg_tokens as $msg_token) {
         switch ($msg_token['type']) {
+            case 'code':
+                $msg_code = $msg_token['code'];
+                break;
+            case 'const':
+                if ($msg_token['value'] === '\0') {
+                    $msg_body .= "\0";
+                } elseif ($msg_token['value'] === 'LENGTH') {
+                    $insert_length = true;
+                }
+                break;
             case 'int16':
-                $new_msg .= pack('n', $msg_token['number']);
+                $msg_body .= pack('n', $msg_token['number']);
                 break;
             case 'int32':
-                $new_msg .= pack('N', $msg_token['number']);
+                $msg_body .= pack('N', $msg_token['number']);
                 break;
             case 'string':
-                $new_msg .= str_replace('\0', "\0", $msg_token['string']);
+                // Replace zero byte characters
+                $string = str_replace('\0', "\0", $msg_token['string']);
+                $msg_body .= $string;
                 break;
         }
     }
-    $new_msg .= "\0"; // End with NULL character
 
-    $msg_length = pack('N', strlen($new_msg) + 4); // include itself 4 bytes
+    $new_msg = '';
+    if (isset($msg_code)) {
+        $new_msg .= $msg_code;
+    }
+    if ($insert_length === true) {
+        $new_msg .= pack('N', strlen($msg_body) + 4); // include itself 4 bytes
+    }
+    $new_msg .= $msg_body;
 
-    return $msg_code . $msg_length . $new_msg;
+    return $new_msg;
 }
 
 /**
@@ -214,6 +232,28 @@ function getMessageToken($msg)
         return [
             'type'   => 'whitespace',
             'value'  => $matches[0],
+        ];
+    }
+
+    if (preg_match("/^([A-Za-z])::code/", $msg, $matches)) {
+        return [
+            'type'  => 'code',
+            'value' => $matches[0],
+            'code'  => $matches[1],
+        ];
+    }
+
+    if (strpos($msg, '\0') === 0) {
+        return [
+            'type'  => 'const',
+            'value' => '\0',
+        ];
+    }
+
+    if (preg_match('/^LENGTH/', $msg, $matches)) {
+        return [
+            'type'  => 'const',
+            'value' => $matches[0],
         ];
     }
 

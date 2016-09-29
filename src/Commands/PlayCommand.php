@@ -2,6 +2,7 @@
 
 namespace Postgres\Commands;
 
+use Postgres\FrontendMessage;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -32,26 +33,33 @@ class PlayCommand extends Command
             $command = array_shift($params);
 
             if ($command === 'send') {
+                $message = new FrontendMessage();
                 foreach ($params as &$param) {
                     if (preg_match('/([^\s]+)::int16$/', $param, $matches)) {
-                        $param = pack('n', $matches[1]);
+                        $message->writeInt16($matches[1]);
                     } elseif (preg_match('/([^\s]+)::int32$/', $param, $matches)) {
-                        $param = pack('N', $matches[1]);
+                        $message->writeInt32($matches[1]);
                     } elseif (strstr($param, '\0')) {
-                        $param = str_replace('\0', "\0", $param);
+                        $message->writeNUL();
                     }
                 }
-
-                $message = implode('', $params);
 
                 $output->writeln("<comment>Sending message >> {$message}</comment>");
                 fwrite($client, $message);
                 $output->writeln("<info>Sent</info>");
             } elseif ($command === 'send_startup') {
                 $options = $this->getOptions($user_input);
-                $protocol_version = pack('n', 3) . pack('n', 0);
-                $startup = $protocol_version . "user\0{$options['user']}\0" .
-                    "database\0{$options['database']}\0client_encoding\0'utf-8'\0\0";
+                $startup = new FrontendMessage();
+                $startup->writeInt16(3);
+                $startup->writeInt16(0);
+                $startup->writeString('user');
+                $startup->writeNUL();
+                $startup->writeString($options['user']);
+                $startup->writeNUL();
+                $startup->writeString('database');
+                $startup->writeNUL();
+                $startup->writeString($options['database']);
+                $startup->writeNUL();
                 $length = strlen($startup) + 4; // including itself, 4 bytes
 
                 $output->writeln("<comment>Sending startup message</comment>");

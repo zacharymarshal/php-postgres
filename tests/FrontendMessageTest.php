@@ -2,10 +2,10 @@
 
 namespace Postgres\Tests;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Postgres\FrontendMessage;
 
-class FrontendMessageTest extends PHPUnit_Framework_TestCase
+class FrontendMessageTest extends TestCase
 {
     public function testCastsToStringAndEndsInNUL()
     {

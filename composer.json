@@ -19,9 +19,12 @@
             "Postgres\\Tests\\": "tests/"
         }
     },
+    "require": {
+        "php": "^7.0"
+    },
     "require-dev": {
         "symfony/console": "~3.1",
-        "phpunit/phpunit": "~4.8"
+        "phpunit/phpunit": "~5.5"
     },
     "scripts": {
         "test": "vendor/bin/phpunit --bootstrap vendor/autoload.php tests/"

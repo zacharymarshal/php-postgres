@@ -53,6 +53,13 @@ class FrontendMessageLexer
             ];
         }
 
+        if (preg_match("/^(\d+)::int32/", $msg, $matches)) {
+            return [
+                ['type' => 'int32', 'value'  => $matches[1]],
+                $matches[0]
+            ];
+        }
+
         return [
             ['type' => 'unknown', 'value' => $msg],
             $msg

@@ -49,6 +49,14 @@ class FrontendMessageLexerTest extends TestCase
                 "99::int16",
                 ['type' => 'int16', 'value' => 99]
             ],
+            [
+                "21::int32",
+                ['type' => 'int32', 'value' => 21]
+            ],
+            [
+                "0::int32",
+                ['type' => 'int32', 'value' => 0]
+            ],
         ];
     }
 }

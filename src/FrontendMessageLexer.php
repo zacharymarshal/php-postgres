@@ -81,6 +81,13 @@ class FrontendMessageLexer
             ];
         }
 
+        if (preg_match('/^([A-Za-z])::ident/', $msg, $matches)) {
+            return [
+                ['type' => 'ident', 'value'  => $matches[1]],
+                $matches[0]
+            ];
+        }
+
         return [
             ['type' => 'unknown', 'value' => $msg],
             $msg

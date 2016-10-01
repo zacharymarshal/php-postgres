@@ -73,6 +73,14 @@ class FrontendMessageLexerTest extends TestCase
                 "LENGTH",
                 ['type' => 'constant', 'value' => 'LENGTH']
             ],
+            [
+                "Q::ident",
+                ['type' => 'ident', 'value' => 'Q']
+            ],
+            [
+                "p::ident",
+                ['type' => 'ident', 'value' => 'p']
+            ],
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Postgres\Commands;
 
+use Postgres\BackendMessage;
 use Postgres\FrontendMessage;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -89,49 +90,34 @@ class PlayCommand extends Command
      */
     private function getMessage($client)
     {
-        $binary_code = fread($client, 1);
-        $message_code = current(unpack('a', $binary_code));
-        if ($message_code === 'R') {
-            $message_length = current(unpack('N', fread($client, 4)));
-            $message = current(unpack('N', fread($client, $message_length - 4)));
-
-            return [$message_code, $message_length, $message];
-        } elseif ($message_code === 'S') {
-            $message_length = current(unpack('N', fread($client, 4)));
-            $message = fread($client, $message_length - 4);
-            $message = json_encode(explode("\0", trim($message)));
-
-            return [$message_code, $message_length, $message];
-        } elseif ($message_code === 'Z') {
-            $message_length = current(unpack('N', fread($client, 4)));
-            $message = fread($client, $message_length - 4);
-
-            return [$message_code, $message_length, $message];
-        } elseif ($message_code === 'K') {
-            $message_length = current(unpack('N', fread($client, 4)));
-            $message = current(unpack('N', fread($client, $message_length - 4)));
-
-            return [$message_code, $message_length, $message];
-        } elseif ($message_code === 'T') {
-            $message_length = current(unpack('N', fread($client, 4)));
-            $message = fread($client, $message_length - 4);
-
-            return [$message_code, $message_length, $message];
-        } elseif ($message_code === 'D') {
-            $message_length = current(unpack('N', fread($client, 4)));
-            $message = fread($client, $message_length - 4);
-
-            return [$message_code, $message_length, $message];
-        } elseif ($message_code === 'C') {
-            $message_length = current(unpack('N', fread($client, 4)));
-            $message = fread($client, $message_length - 4);
-
-            return [$message_code, $message_length, $message];
+        $msg_ident = fread($client, 1);
+        $msg_length = current(unpack('N', fread($client, 4)));
+        $msg_body = fread($client, $msg_length - 4);
+        $msg = new BackendMessage($msg_ident, $msg_body);
+        if ($msg_ident === 'R') {
+            return [$msg_ident, $msg_length, $msg->readInt32()];
+        } elseif ($msg_ident === 'S') {
+            return [
+                $msg_ident,
+                $msg_length,
+                json_encode([
+                    $msg->readString(),
+                    $msg->readString()
+                ])
+            ];
+        } elseif ($msg_ident === 'Z') {
+            return [$msg_ident, $msg_length, $msg->readByte()];
+        } elseif ($msg_ident === 'K') {
+            return [
+                $msg_ident,
+                $msg_length,
+                json_encode([
+                    'process_id' => $msg->readInt32(),
+                    'secret_key' => $msg->readInt32(),
+                ])
+            ];
         } else {
-            $message_length = current(unpack('N', fread($client, 4)));
-            $message = fread($client, $message_length - 4);
-
-            return [$message_code, $message_length, $message];
+            return [$msg_ident, $msg_length, "{$msg}"];
         }
     }
 

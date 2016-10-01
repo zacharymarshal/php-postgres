@@ -57,6 +57,14 @@ class FrontendMessageLexerTest extends TestCase
                 "0::int32",
                 ['type' => 'int32', 'value' => 0]
             ],
+            [
+                '"user"',
+                ['type' => 'string', 'value' => "user"]
+            ],
+            [
+                '"SELECT * FROM "table" LIMIT 1;"::string',
+                ['type' => 'string', 'value' => 'SELECT * FROM "table" LIMIT 1;']
+            ],
         ];
     }
 }

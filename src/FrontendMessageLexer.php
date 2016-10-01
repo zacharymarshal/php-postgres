@@ -60,6 +60,20 @@ class FrontendMessageLexer
             ];
         }
 
+        if (preg_match('/^"(.+)"::string/', $msg, $matches)) {
+            return [
+                ['type' => 'string', 'value'  => $matches[1]],
+                $matches[0]
+            ];
+        }
+
+        if (preg_match('/^"([^"]+)"/', $msg, $matches)) {
+            return [
+                ['type' => 'string', 'value'  => $matches[1]],
+                $matches[0]
+            ];
+        }
+
         return [
             ['type' => 'unknown', 'value' => $msg],
             $msg

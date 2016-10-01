@@ -13,7 +13,7 @@ bin/php-postgres play localhost --port=5432
 # send startup message
 > send LENGTH 3::int16 0::int16 "user" NUL "zacharyrankin" NUL "database" NUL "postgres" NUL NUL
 # send startup message helper
-> send_startup --user=zacharyrankin --database=dev_greendot
+> send_startup --user=zacharyrankin --database=postgres
 # send query message
 > send Q::ident LENGTH "SELECT 1" NUL
 # get 100 bytes from the stream

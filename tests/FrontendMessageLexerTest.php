@@ -65,6 +65,14 @@ class FrontendMessageLexerTest extends TestCase
                 '"SELECT * FROM "table" LIMIT 1;"::string',
                 ['type' => 'string', 'value' => 'SELECT * FROM "table" LIMIT 1;']
             ],
+            [
+                "NUL",
+                ['type' => 'constant', 'value' => 'NUL']
+            ],
+            [
+                "LENGTH",
+                ['type' => 'constant', 'value' => 'LENGTH']
+            ],
         ];
     }
 }

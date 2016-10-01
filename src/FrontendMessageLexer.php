@@ -74,6 +74,13 @@ class FrontendMessageLexer
             ];
         }
 
+        if (preg_match('/^(NUL|LENGTH)/', $msg, $matches)) {
+            return [
+                ['type' => 'constant', 'value'  => $matches[1]],
+                $matches[0]
+            ];
+        }
+
         return [
             ['type' => 'unknown', 'value' => $msg],
             $msg

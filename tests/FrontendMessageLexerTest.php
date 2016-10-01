@@ -83,4 +83,16 @@ class FrontendMessageLexerTest extends TestCase
             ],
         ];
     }
+
+    public function testGettingMultipleTokens()
+    {
+        $lexr = new FrontendMessageLexer('Q::ident LENGTH "SELECT 1" NUL');
+        $this->assertEquals(['type' => 'ident', 'value' => 'Q'], $lexr->nextToken());
+        $this->assertEquals(['type' => 'whitespace', 'value' => ' '], $lexr->nextToken());
+        $this->assertEquals(['type' => 'constant', 'value' => 'LENGTH'], $lexr->nextToken());
+        $this->assertEquals(['type' => 'whitespace', 'value' => ' '], $lexr->nextToken());
+        $this->assertEquals(['type' => 'string', 'value' => 'SELECT 1'], $lexr->nextToken());
+        $this->assertEquals(['type' => 'whitespace', 'value' => ' '], $lexr->nextToken());
+        $this->assertEquals(['type' => 'constant', 'value' => 'NUL'], $lexr->nextToken());
+    }
 }

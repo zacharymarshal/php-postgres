@@ -19,8 +19,6 @@ class FrontendMessage
      */
     public function __toString()
     {
-        $this->writeNUL();
-
         return $this->msg;
     }
 

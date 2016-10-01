@@ -10,28 +10,28 @@ class FrontendMessageTest extends TestCase
     public function testCastsToStringAndEndsInNUL()
     {
         $msg = new FrontendMessage();
-        $this->assertEquals("\0", "{$msg}");
+        $this->assertEquals("", "{$msg}");
     }
     
     public function testWritingMessageIdentifier()
     {
         $msg = new FrontendMessage();
         $msg->writeIdent('Q');
-        $this->assertEquals("Q\0", "{$msg}");
+        $this->assertEquals("Q", "{$msg}");
     }
 
     public function testWritingNUL()
     {
         $msg = new FrontendMessage();
         $msg->writeNUL();
-        $this->assertEquals("\0\0", "{$msg}");
+        $this->assertEquals("\0", "{$msg}");
     }
 
     public function testWritingInt32()
     {
         $msg = new FrontendMessage();
         $msg->writeInt32(2147483647);
-        $this->assertTrue(strlen($msg) === 5);
+        $this->assertTrue(strlen($msg) === 4);
         $arr = unpack('Nint', $msg);
         $this->assertEquals(2147483647, $arr['int']);
     }
@@ -40,7 +40,7 @@ class FrontendMessageTest extends TestCase
     {
         $msg = new FrontendMessage();
         $msg->writeInt16(3);
-        $this->assertTrue(strlen($msg) === 3);
+        $this->assertTrue(strlen($msg) === 2);
         $arr = unpack('nint', $msg);
         $this->assertEquals(3, $arr['int']);
     }
@@ -49,7 +49,7 @@ class FrontendMessageTest extends TestCase
     {
         $msg = new FrontendMessage();
         $msg->writeString("hello world");
-        $this->assertEquals("hello world\0", "{$msg}");
+        $this->assertEquals("hello world", "{$msg}");
     }
 
     public function testWritingStartupMessage()
@@ -65,7 +65,7 @@ class FrontendMessageTest extends TestCase
         $msg->writeNUL();                   // 1
         $msg->writeString('postgres');      // 8
         $msg->writeNUL();                   // 1
-        // 41 bytes + 1 for the ending NUL
+        $msg->writeNUL();                   // 1
         $this->assertEquals(42, strlen($msg));
     }
 }

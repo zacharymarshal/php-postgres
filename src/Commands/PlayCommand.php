@@ -4,6 +4,7 @@ namespace Postgres\Commands;
 
 use Postgres\BackendMessage;
 use Postgres\FrontendMessage;
+use Postgres\FrontendMessageLexer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -34,19 +35,43 @@ class PlayCommand extends Command
             $command = array_shift($params);
 
             if ($command === 'send') {
+                $str_msg = preg_replace("/^send\s+/", "", $user_input);
+                $lexer = new FrontendMessageLexer($str_msg);
+                $include_length = false;
+                $msg_ident = false;
                 $message = new FrontendMessage();
-                foreach ($params as &$param) {
-                    if (preg_match('/([^\s]+)::int16$/', $param, $matches)) {
-                        $message->writeInt16($matches[1]);
-                    } elseif (preg_match('/([^\s]+)::int32$/', $param, $matches)) {
-                        $message->writeInt32($matches[1]);
-                    } elseif (strstr($param, '\0')) {
+                while ($token = $lexer->nextToken()) {
+                    if ($token['type'] === 'int16') {
+                        $message->writeInt16($token['value']);
+                    } elseif ($token['type'] === 'int32') {
+                        $message->writeInt32($token['value']);
+                    } elseif ($token['type'] === 'string') {
+                        $message->writeString($token['value']);
+                    } elseif ($token['type'] === 'constant'
+                        && $token['value'] === 'NUL'
+                    ) {
                         $message->writeNUL();
+                    } elseif ($token['type'] === 'constant'
+                        && $token['value'] === 'LENGTH'
+                    ) {
+                        $include_length = true;
+                    } elseif ($token['type'] === 'ident') {
+                        $msg_ident = $token['value'];
                     }
                 }
 
-                $output->writeln("<comment>Sending message >> {$message}</comment>");
-                fwrite($client, $message);
+                $full_message = '';
+                if ($msg_ident) {
+                    $full_message .= "{$msg_ident}";
+                }
+                if ($include_length === true) {
+                    $length = strlen($message) + 4; // including itself, 4 bytes
+                    $full_message .= pack('N', $length);
+                }
+                $full_message .= "{$message}";
+
+                $output->writeln("<comment>Sending message >> {$full_message}</comment>");
+                fwrite($client, $full_message);
                 $output->writeln("<info>Sent</info>");
             } elseif ($command === 'send_startup') {
                 $options = $this->getOptions($user_input);

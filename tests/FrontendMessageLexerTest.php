@@ -41,6 +41,14 @@ class FrontendMessageLexerTest extends TestCase
                 "   ",
                 ['type' => 'whitespace', 'value' => "   "]
             ],
+            [
+                "3::int16",
+                ['type' => 'int16', 'value' => 3]
+            ],
+            [
+                "99::int16",
+                ['type' => 'int16', 'value' => 99]
+            ],
         ];
     }
 }

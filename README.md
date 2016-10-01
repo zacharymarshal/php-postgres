@@ -6,26 +6,33 @@ php-postgres is a pure php postgres client, designed to help developers understa
 
 How can I make developers badass?
 
-### CLI
+### CLI Usage
 
 ```
 bin/php-postgres play localhost --port=5432
-# send a message
-> send 42::int32 3::int16 0::int16 user\0zacharyrankin\0database\0dev_greendot\0\0
-# send startup
+# send startup message
+> send LENGTH 3::int16 0::int16 "user" NUL "zacharyrankin" NUL "database" NUL "postgres" NUL NUL
+# send startup message helper
 > send_startup --user=zacharyrankin --database=dev_greendot
-# send query
-> send Q 13::int32 "SELECT 1"::string
-> send_query "SELECT 1"::string
+# send query message
+> send Q::ident LENGTH "SELECT 1" NUL
 # get 100 bytes from the stream
 > get 100
-# get message
-> get_message --raw
-R (length 123)
-Blah blah blah
+# get the next message
+> get_message
+# get all the messages
 > get_messages
-R (length 123)
-Blah blah blah
-C (length 123)
-Blah blah blah
 ```
+
+### Constants
+
+#### LENGTH
+
+`LENGTH` will automatically prepend the length of the message and convert it to int32.  For example, these two messages are the same:
+
+- `send Q::ident LENGTH "SELECT 1" NUL`
+- `send Q::ident 13::int32 "SELECT 1" NUL`
+
+#### NUL
+
+`NUL` will send a NUL character [https://en.wikipedia.org/wiki/Null_character](https://en.wikipedia.org/wiki/Null_character), which in php can be represented as `\0`.

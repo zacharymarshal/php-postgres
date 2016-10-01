@@ -2,6 +2,11 @@
 
 namespace Postgres;
 
+/**
+ * Responsible for breaking our DSL into tokens for the parser.
+ *
+ * @package Postgres
+ */
 class FrontendMessageLexer
 {
     /**

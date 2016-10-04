@@ -4,38 +4,32 @@ namespace Postgres\Tests;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
-use Postgres\BackendMessage;
+use Postgres\ReadBuffer;
 
-class BackendMessageTest extends TestCase
+class ReadBufferTest extends TestCase
 {
-    public function testGettingMessageIdent()
-    {
-        $msg = new BackendMessage('R', '');
-        $this->assertEquals('R', $msg->getIdent());
-    }
-
     public function testReadingInt32()
     {
-        $msg = new BackendMessage('R', pack('N', 3));
+        $msg = new ReadBuffer(pack('N', 3));
         $this->assertEquals(3, $msg->readInt32());
     }
 
     public function testReadingMultipleIntegers()
     {
-        $msg = new BackendMessage('R', pack('N', 3) . pack('N', 45));
+        $msg = new ReadBuffer(pack('N', 3) . pack('N', 45));
         $this->assertEquals(3, $msg->readInt32());
         $this->assertEquals(45, $msg->readInt32());
     }
 
     public function testReadingString()
     {
-        $msg = new BackendMessage('R', "hello\0");
+        $msg = new ReadBuffer("hello\0");
         $this->assertEquals("hello", $msg->readString());
     }
 
     public function testReadingMultipleStrings()
     {
-        $msg = new BackendMessage('R', "hello\0world\0");
+        $msg = new ReadBuffer("hello\0world\0");
         $this->assertEquals("hello", $msg->readString());
         $this->assertEquals("world", $msg->readString());
     }
@@ -44,19 +38,19 @@ class BackendMessageTest extends TestCase
     {
         $this->expectException(Exception::class);
 
-        $msg = new BackendMessage('R', "hello");
+        $msg = new ReadBuffer("hello");
         $msg->readString();
     }
 
     public function testReadingByte()
     {
-        $msg = new BackendMessage('Z', 'I');
-        $this->assertEquals("I", $msg->readByte());
+        $msg = new ReadBuffer('I');
+        $this->assertEquals('I', $msg->readByte());
     }
     
     public function testCastingToString()
     {
-        $msg = new BackendMessage('Z', 'hello');
+        $msg = new ReadBuffer('hello');
         $this->assertEquals('hello', "{$msg}");
     }
 }

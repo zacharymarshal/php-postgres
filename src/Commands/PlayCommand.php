@@ -2,10 +2,10 @@
 
 namespace Postgres\Commands;
 
-use Postgres\BackendMessage;
 use Postgres\FrontendMessage;
 use Postgres\FrontendMessageLexer;
 use Postgres\FrontendMessageParser;
+use Postgres\ReadBuffer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -87,8 +87,8 @@ class PlayCommand extends Command
     {
         $msg_ident = fread($client, 1);
         $msg_length = current(unpack('N', fread($client, 4)));
-        $msg_body = fread($client, $msg_length - 4);
-        $msg = new BackendMessage($msg_ident, $msg_body);
+        $msg_buffer = fread($client, $msg_length - 4);
+        $msg = new ReadBuffer($msg_buffer);
         if ($msg_ident === 'R') {
             return [$msg_ident, $msg_length, $msg->readInt32()];
         } elseif ($msg_ident === 'S') {

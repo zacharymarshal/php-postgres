@@ -2,6 +2,7 @@
 
 namespace Postgres\Commands;
 
+use Postgres\Connection;
 use Postgres\FrontendMessage;
 use Postgres\FrontendMessageLexer;
 use Postgres\FrontendMessageParser;
@@ -21,11 +22,8 @@ class PlayCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $helper = $this->getHelper('question');
-        $addr = gethostbyname('localhost');
-        $socket = "tcp://$addr:5432";
-        $output->writeln("<comment>Connecting to {$socket}</comment>");
-        $client = stream_socket_client($socket, $errno, $errorMessage, 10);
-        $output->writeln("<info>Connected</info>");
+
+        $conn = null;
         do {
             $user_input = readline('> ');
             if (!empty($user_input)) {
@@ -34,8 +32,13 @@ class PlayCommand extends Command
 
             $params = explode(' ', $user_input);
             $command = array_shift($params);
-
-            if ($command === 'send') {
+            if ($command === 'connect') {
+                $url = current($params);
+                $conn = new Connection($url);
+                $output->writeln("<comment>Connecting to {$url}</comment>");
+                $conn->connect();
+                $output->writeln("<info>Connected</info>");
+            } elseif ($command === 'send') {
                 $str_msg = preg_replace("/^send\s+/", "", $user_input);
                 $msg_parser = new FrontendMessageParser($str_msg);
                 $msg = $msg_parser->getMessage();
@@ -44,28 +47,14 @@ class PlayCommand extends Command
                 fwrite($client, $msg);
                 $output->writeln("<info>Sent</info>");
             } elseif ($command === 'send_startup') {
-                $options = $this->getOptions($user_input);
-                $startup = new FrontendMessage();
-                $startup->writeInt16(3);
-                $startup->writeInt16(0);
-                $startup->writeString('user');
-                $startup->writeNUL();
-                $startup->writeString($options['user']);
-                $startup->writeNUL();
-                $startup->writeString('database');
-                $startup->writeNUL();
-                $startup->writeString($options['database']);
-                $startup->writeNUL();
-                $length = strlen($startup) + 4; // including itself, 4 bytes
-
                 $output->writeln("<comment>Sending startup message</comment>");
-                fwrite($client, pack('N', $length) . $startup);
+                $conn->startup();
                 $output->writeln("<info>Sent</info>");
             } elseif ($command === 'get') {
                 $client_output = fread($client, array_shift($params));
                 $output->writeln($client_output);
             } elseif ($command === 'get_message') {
-                list($message_code, $message_length, $message) = $this->getMessage($client);
+                list($message_code, $message_length, $message) = $this->getMessage($conn);
                 $output->writeln("<info>{$message_code} (length $message_length)</info>");
                 $output->writeln("<info>{$message}</info>");
             } elseif ($command === 'get_messages') {
@@ -83,12 +72,10 @@ class PlayCommand extends Command
      * @param $client
      * @return array
      */
-    private function getMessage($client)
+    private function getMessage(Connection $conn)
     {
-        $msg_ident = fread($client, 1);
-        $msg_length = current(unpack('N', fread($client, 4)));
-        $msg_buffer = fread($client, $msg_length - 4);
-        $msg = new ReadBuffer($msg_buffer);
+        /** @var ReadBuffer $msg */
+        list($msg_ident, $msg_length, $msg) = $conn->readMessage();
         if ($msg_ident === 'R') {
             return [$msg_ident, $msg_length, $msg->readInt32()];
         } elseif ($msg_ident === 'S') {

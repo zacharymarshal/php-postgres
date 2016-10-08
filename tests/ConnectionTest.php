@@ -24,4 +24,11 @@ class ConnectionTest extends TestCase
         $conn = new Connection("tcp://localhost:5432");
         $conn->connect();
     }
+
+    public function testSendingStartup()
+    {
+        $conn = new Connection("tcp://testing_cleartext_user:ASD123@localhost:5432/testing_cleartext");
+        $conn->connect();
+        $conn->startup();
+    }
 }

@@ -21,8 +21,6 @@ class PlayCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $helper = $this->getHelper('question');
-
         $conn = null;
         do {
             $user_input = readline('> ');
@@ -40,36 +38,26 @@ class PlayCommand extends Command
                 $output->writeln("<info>Connected</info>");
             } elseif ($command === 'send') {
                 $str_msg = preg_replace("/^send\s+/", "", $user_input);
-                $msg_parser = new FrontendMessageParser($str_msg);
-                $msg = $msg_parser->getMessage();
-
-                $output->writeln("<comment>Sending message >> {$msg}</comment>");
-                fwrite($client, $msg);
+                $output->writeln("<comment>Sending message >> {$str_msg}</comment>");
+                $conn->write($str_msg);
                 $output->writeln("<info>Sent</info>");
             } elseif ($command === 'send_startup') {
                 $output->writeln("<comment>Sending startup message</comment>");
                 $conn->startup();
                 $output->writeln("<info>Sent</info>");
             } elseif ($command === 'get') {
-                $client_output = fread($client, array_shift($params));
+                $client_output = $conn->read(array_shift($params));
                 $output->writeln($client_output);
             } elseif ($command === 'get_message') {
                 list($message_code, $message_length, $message) = $this->getMessage($conn);
                 $output->writeln("<info>{$message_code} (length $message_length)</info>");
                 $output->writeln("<info>{$message}</info>");
-            } elseif ($command === 'get_messages') {
-                do {
-                    list($message_code, $message_length, $message) = $this->getMessage($client);
-                    $output->writeln("{$message_code} (length $message_length)");
-                    $output->writeln("{$message}");
-                    $output->writeln("<comment>---------------------------------</comment>");
-                } while ($message_code !== 'Z');
             }
         } while ($user_input !== 'exit');
     }
 
     /**
-     * @param $client
+     * @param Connection $conn
      * @return array
      */
     private function getMessage(Connection $conn)
@@ -101,21 +89,5 @@ class PlayCommand extends Command
         } else {
             return [$msg_ident, $msg_length, "{$msg}"];
         }
-    }
-
-    /**
-     * @param $user_input
-     * @return array
-     */
-    private function getOptions($user_input)
-    {
-        $options = [];
-        foreach (preg_split('/\s+/', $user_input) as $param) {
-            if (preg_match('/--(.+)=(.+)/', $param, $matches)) {
-                $options[$matches[1]] = $matches[2];
-            }
-        }
-
-        return $options;
     }
 }

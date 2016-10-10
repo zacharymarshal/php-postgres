@@ -4,7 +4,32 @@
 
 php-postgres is a pure php postgres client designed to help developers understand what is happening when they send a query to Postgres.
 
-### CLI Usage
+## Usage
+
+### Examples
+
+Example #1 create connection to Postgres backend.
+
+```php
+try {
+    $conn = new Postgres\Connection('tcp://user:pass@localhost:5432/testdb?connect_timeout=2');
+    $conn->connect();
+} catch (PostgresException $e) {
+    echo "Connection failed: " . $e->getMessage();
+}
+```
+
+### Parameters
+
+Parameters are set via the connection url query string (`?connect_timeout=2&application_name=php-postgres`)
+
+***
+
+`connect_timeout` int (seconds)
+
+Sets the amount of seconds to wait before timing out when connecting to the Postgres backend.
+
+## CLI Usage
 
 ```
 bin/php-postgres play localhost --port=5432
@@ -21,6 +46,8 @@ bin/php-postgres play localhost --port=5432
 # get all the messages
 > get_messages
 ```
+
+## Message DSL (Domain Specific Language)
 
 ### Constants
 

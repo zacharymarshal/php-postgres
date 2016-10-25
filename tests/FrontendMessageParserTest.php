@@ -40,6 +40,10 @@ class FrontendMessageParserTest extends TestCase
             [
                 'Q::ident LENGTH "SELECT 1"::string NUL',
                 'Q' . pack('N', 13) . "SELECT 1\0"
+            ],
+            [
+                'Q::ident 13::int32 "SELECT 1"::string NUL',
+                'Q' . pack('N', 13) . "SELECT 1\0"
             ]
         ];
     }

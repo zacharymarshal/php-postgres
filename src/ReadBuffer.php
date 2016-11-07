@@ -37,8 +37,7 @@ class ReadBuffer
      */
     public function readInt32(): int
     {
-        $int32 = unpack('Nint', substr($this->buffer, 0, 4));
-        $this->buffer = substr($this->buffer, 4);
+        $int32 = unpack('Nint', $this->read(4));
 
         return $int32['int'];
     }
@@ -53,8 +52,7 @@ class ReadBuffer
         if ($nul_pos === false) {
             throw new Exception("Could not read string.  Missing string terminator NUL.");
         }
-        $string = substr($this->buffer, 0, $nul_pos);
-        $this->buffer = substr($this->buffer, $nul_pos + 1);
+        $string = rtrim($this->read($nul_pos + 1), "\0");
 
         return $string;
     }
@@ -64,9 +62,20 @@ class ReadBuffer
      */
     public function readByte(): string
     {
-        $byte = substr($this->buffer, 0, 1);
-        $this->buffer = substr($this->buffer, 1);
+        $byte = $this->read(1);
 
         return $byte;
+    }
+
+    /**
+     * @param int $length
+     * @return string
+     */
+    public function read(int $length): string
+    {
+        $bytes = substr($this->buffer, 0, $length);
+        $this->buffer = substr($this->buffer, $length);
+
+        return $bytes;
     }
 }

@@ -53,4 +53,17 @@ class ReadBufferTest extends TestCase
         $msg = new ReadBuffer('hello');
         $this->assertEquals('hello', "{$msg}");
     }
+
+    public function testReadingInt16()
+    {
+        $msg = new ReadBuffer(pack('n', 3));
+        $this->assertEquals(3, $msg->readInt16());
+    }
+
+    public function testReadingMultipleInt16s()
+    {
+        $msg = new ReadBuffer(pack('n', 3) . pack('n', 0));
+        $this->assertEquals(3, $msg->readInt16());
+        $this->assertEquals(0, $msg->readInt16());
+    }
 }

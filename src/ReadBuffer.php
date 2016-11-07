@@ -43,6 +43,16 @@ class ReadBuffer
     }
 
     /**
+     * @return int
+     */
+    public function readInt16(): int
+    {
+        $int16 = unpack('nint', $this->read(2));
+
+        return $int16['int'];
+    }
+
+    /**
      * @return string
      * @throws Exception
      */

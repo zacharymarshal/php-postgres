@@ -7,7 +7,7 @@ namespace Postgres;
  *
  * @package Postgres
  */
-class FrontendMessage
+class WriteBuffer
 {
     /**
      * @var string

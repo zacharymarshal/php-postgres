@@ -2,7 +2,6 @@
 namespace Postgres\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Postgres\FrontendMessage;
 use Postgres\FrontendMessageParser;
 
 class FrontendMessageParserTest extends TestCase

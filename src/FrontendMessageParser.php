@@ -10,14 +10,24 @@ class FrontendMessageParser
     /**
      * @var string
      */
-    private $str_msg;
+    private $ident = '';
+
+    /**
+     * @var bool
+     */
+    private $include_length = false;
+
+    /**
+     * @var FrontendMessageLexer
+     */
+    private $lexer;
 
     /**
      * @param string $str_msg
      */
     public function __construct(string $str_msg)
     {
-        $this->str_msg = $str_msg;
+        $this->lexer = new FrontendMessageLexer($str_msg);
     }
 
     /**
@@ -25,40 +35,53 @@ class FrontendMessageParser
      */
     public function getMessage(): string
     {
-        $lexer = new FrontendMessageLexer($this->str_msg);
-        $include_length = false;
-        $msg_ident = false;
-        $front_msg = new FrontendMessage();
-        while ($token = $lexer->nextToken()) {
-            if ($token['type'] === 'int16') {
-                $front_msg->writeInt16($token['value']);
-            } elseif ($token['type'] === 'int32') {
-                $front_msg->writeInt32($token['value']);
-            } elseif ($token['type'] === 'string') {
-                $front_msg->writeString($token['value']);
-            } elseif ($token['type'] === 'constant'
-                && $token['value'] === 'NUL'
-            ) {
-                $front_msg->writeNUL();
-            } elseif ($token['type'] === 'constant'
-                && $token['value'] === 'LENGTH'
-            ) {
-                $include_length = true;
-            } elseif ($token['type'] === 'ident') {
-                $msg_ident = $token['value'];
+        $buff = new WriteBuffer();
+        while ($token = $this->lexer->nextToken()) {
+            switch ($token['type']) {
+                case 'constant':
+                    $this->writeConstant($token['value'], $buff);
+                    break;
+                case 'ident':
+                    $this->ident = $token['value'];
+                    break;
+                case 'int16':
+                    $buff->writeInt16($token['value']);
+                    break;
+                case 'int32':
+                    $buff->writeInt32($token['value']);
+                    break;
+                case 'string':
+                    $buff->writeString($token['value']);
+                    break;
+                default:
+                    break;
             }
         }
 
-        $msg = '';
-        if ($msg_ident) {
-            $msg .= "{$msg_ident}";
+        $msg = new WriteBuffer();
+        $msg->writeString($this->ident);
+        if ($this->include_length === true) {
+            // message length including the length itself–4 bytes
+            $msg->writeInt32(strlen($buff) + 4);
         }
-        if ($include_length === true) {
-            $length = strlen($front_msg) + 4; // including itself, 4 bytes
-            $msg .= pack('N', $length);
-        }
-        $msg .= "{$front_msg}";
+        $msg->writeString($buff->__toString());
 
         return $msg;
+    }
+
+    /**
+     * @param string $value
+     * @param WriteBuffer $buff
+     */
+    private function writeConstant(string $value, WriteBuffer $buff)
+    {
+        switch ($value) {
+            case 'NUL':
+                $buff->writeNUL();
+                break;
+            case 'LENGTH':
+                $this->include_length = true;
+                break;
+        }
     }
 }

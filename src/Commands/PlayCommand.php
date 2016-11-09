@@ -2,8 +2,7 @@
 
 namespace Postgres\Commands;
 
-use Postgres\FrontendMessage;
-use Postgres\FrontendMessageLexer;
+use Postgres\WriteBuffer;
 use Postgres\FrontendMessageParser;
 use Postgres\ReadBuffer;
 use Symfony\Component\Console\Command\Command;
@@ -45,7 +44,7 @@ class PlayCommand extends Command
                 $output->writeln("<info>Sent</info>");
             } elseif ($command === 'send_startup') {
                 $options = $this->getOptions($user_input);
-                $startup = new FrontendMessage();
+                $startup = new WriteBuffer();
                 $startup->writeInt16(3);
                 $startup->writeInt16(0);
                 $startup->writeString('user');

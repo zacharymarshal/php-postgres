@@ -2,7 +2,7 @@
 
 namespace Postgres;
 
-interface Connection
+interface ConnectionInterface
 {
     public function connect();
     public function startup();

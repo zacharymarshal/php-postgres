@@ -3,21 +3,21 @@
 namespace Postgres\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Postgres\Connection;
+use Postgres\ConnectionInterface;
 use Postgres\PlayCommand;
 
 class PlayCommandTest extends TestCase
 {
     public function testRunCommand()
     {
-        $stub_conn = $this->createMock(Connection::class);
+        $stub_conn = $this->createMock(ConnectionInterface::class);
         $play_cmd = new PlayCommand();
         $this->assertTrue($play_cmd->run($stub_conn, '', []));
     }
 
     public function testConnects()
     {
-        $conn = $this->createMock(Connection::class);
+        $conn = $this->createMock(ConnectionInterface::class);
         $conn->expects($this->once())
             ->method('connect');
 
@@ -27,7 +27,7 @@ class PlayCommandTest extends TestCase
 
     public function testStartingUp()
     {
-        $conn = $this->createMock(Connection::class);
+        $conn = $this->createMock(ConnectionInterface::class);
         $conn->expects($this->once())
             ->method('startup');
 
@@ -37,7 +37,7 @@ class PlayCommandTest extends TestCase
 
     public function testStartupOption()
     {
-        $conn = $this->createMock(Connection::class);
+        $conn = $this->createMock(ConnectionInterface::class);
         $conn->expects($this->never())
             ->method('startup');
 

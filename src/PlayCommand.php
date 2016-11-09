@@ -11,12 +11,12 @@ namespace Postgres;
 class PlayCommand
 {
     /**
-     * @param Connection $conn
+     * @param ConnectionInterface $conn
      * @param string $input
      * @param array $options
      * @return bool
      */
-    public function run(Connection $conn, string $input, array $options = []): bool
+    public function run(ConnectionInterface $conn, string $input, array $options = []): bool
     {
         $options = array_merge([
             'startup' => true

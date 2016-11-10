@@ -13,25 +13,38 @@ use InvalidArgumentException;
 class PlayCommand
 {
     /**
-     * @param ConnectionInterface $conn
-     * @param string $input
-     * @param array $options
-     * @return bool
+     * @var ConnectionInterface
      */
-    public function run(ConnectionInterface $conn, string $input, array $options = []): bool
+    private $conn;
+
+    /**
+     * @param ConnectionInterface $conn
+     * @param array $options
+     */
+    public function __construct(ConnectionInterface $conn, array $options = [])
     {
+        $this->conn = $conn;
         $options = array_merge([
             'startup' => true
         ], $options);
 
-        $conn->connect();
+        $this->conn->connect();
 
         if ($options['startup'] === true) {
-            $conn->startup();
+            $this->conn->startup();
         }
+    }
 
+    /**
+     * @param string $input
+     * @return bool
+     * @internal param ConnectionInterface $conn
+     * @internal param array $options
+     */
+    public function run(string $input): bool
+    {
         foreach (explode("\n", $input, 1000) as $cmd) {
-            $this->runCmd($conn, $cmd);
+            $this->runCmd($this->conn, $cmd);
         }
 
         return true;

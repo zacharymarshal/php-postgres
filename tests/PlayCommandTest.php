@@ -9,21 +9,13 @@ use Postgres\PlayCommand;
 
 class PlayCommandTest extends TestCase
 {
-    public function testRunCommand()
-    {
-        $stub_conn = $this->createMock(ConnectionInterface::class);
-        $play_cmd = new PlayCommand();
-        $this->assertTrue($play_cmd->run($stub_conn, '', []));
-    }
-
     public function testConnects()
     {
         $conn = $this->createMock(ConnectionInterface::class);
         $conn->expects($this->once())
             ->method('connect');
 
-        $play_cmd = new PlayCommand();
-        $play_cmd->run($conn, '', []);
+        (new PlayCommand($conn));
     }
 
     public function testStartingUp()
@@ -32,8 +24,7 @@ class PlayCommandTest extends TestCase
         $conn->expects($this->once())
             ->method('startup');
 
-        $play_cmd = new PlayCommand();
-        $play_cmd->run($conn, '', []);
+        (new PlayCommand($conn));
     }
 
     public function testStartupOption()
@@ -42,10 +33,7 @@ class PlayCommandTest extends TestCase
         $conn->expects($this->never())
             ->method('startup');
 
-        $play_cmd = new PlayCommand();
-        $play_cmd->run($conn, '', [
-            'startup' => false
-        ]);
+        (new PlayCommand($conn, ['startup' => false]));
     }
 
     public function testWriteCommand()
@@ -55,11 +43,11 @@ class PlayCommandTest extends TestCase
             ->method('write')
             ->with($this->equalTo('Q::ident LENGTH "SELECT 1"::string NUL'));
 
-        $play_cmd = new PlayCommand();
+        $play_cmd = new PlayCommand($conn);
         $input = <<<'IN'
 write Q::ident LENGTH "SELECT 1"::string NUL
 IN;
-        $play_cmd->run($conn, $input);
+        $play_cmd->run($input);
     }
 
     public function testMultipleWriteCommands()
@@ -72,28 +60,31 @@ IN;
                 [$this->equalTo('Q::ident LENGTH "SELECT 2"::string NUL')]
             );
 
-        $play_cmd = new PlayCommand();
+        $play_cmd = new PlayCommand($conn);
         $input = <<<'IN'
 write Q::ident LENGTH "SELECT 1"::string NUL
 write Q::ident LENGTH "SELECT 2"::string NUL
 IN;
-        $play_cmd->run($conn, $input);
+        $play_cmd->run($input);
     }
     
     public function testRunFailsBadCommand()
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage("Invalid command");
-        $play_cmd = new PlayCommand();
+
         $conn = $this->createMock(ConnectionInterface::class);
-        $play_cmd->run($conn, '... fail');
+
+        $play_cmd = new PlayCommand($conn);
+        $play_cmd->run('... fail');
     }
 
     public function testRunNoInput()
     {
-        $play_cmd = new PlayCommand();
         $conn = $this->createMock(ConnectionInterface::class);
-        $this->assertTrue($play_cmd->run($conn, ""));
-        $this->assertTrue($play_cmd->run($conn, "\n\n"));
+
+        $play_cmd = new PlayCommand($conn);
+        $this->assertTrue($play_cmd->run(""));
+        $this->assertTrue($play_cmd->run("\n\n"));
     }
 }

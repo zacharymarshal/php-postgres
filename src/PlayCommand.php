@@ -2,6 +2,8 @@
 
 namespace Postgres;
 
+use InvalidArgumentException;
+
 /**
  * Responsible for parsing the individual commands
  * and calling the appropriate connection methods
@@ -28,6 +30,29 @@ class PlayCommand
             $conn->startup();
         }
 
+        foreach (explode("\n", $input, 1000) as $cmd) {
+            $this->runCmd($conn, $cmd);
+        }
+
         return true;
+    }
+
+    /**
+     * @param ConnectionInterface $conn
+     * @param string $cmd
+     */
+    private function runCmd(ConnectionInterface $conn, string $cmd)
+    {
+        $cmd = trim($cmd);
+        if ($cmd === '') {
+            return;
+        }
+
+        if (substr($cmd, 0, 6) === 'write ') {
+            $conn->write(substr($cmd, 6));
+            return;
+        }
+
+        throw new InvalidArgumentException("Invalid command {$cmd}");
     }
 }

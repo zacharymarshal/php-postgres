@@ -87,4 +87,32 @@ IN;
         $this->assertTrue($play_cmd->run(""));
         $this->assertTrue($play_cmd->run("\n\n"));
     }
+
+    public function testReadCommandValidates()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("*read* expects length to be an integer");
+
+        $conn = $this->createMock(ConnectionInterface::class);
+
+        $play_cmd = new PlayCommand($conn);
+        $input = <<<'IN'
+read ...
+IN;
+        $play_cmd->run($input);
+    }
+
+    public function testReadCommand()
+    {
+        $conn = $this->createMock(ConnectionInterface::class);
+        $conn->expects($this->once())
+            ->method('read')
+            ->with($this->equalTo(25));
+
+        $play_cmd = new PlayCommand($conn);
+        $input = <<<'IN'
+read 25
+IN;
+        $play_cmd->run($input);
+    }
 }

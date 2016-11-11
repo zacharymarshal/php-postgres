@@ -64,6 +64,16 @@ class PlayCommand
         if (substr($cmd, 0, 6) === 'write ') {
             $conn->write(substr($cmd, 6));
             return;
+        } elseif (substr($cmd, 0, 5) === 'read ') {
+            $length = substr($cmd, 5);
+            if ($length != (string) (int) $length) {
+                throw new InvalidArgumentException(sprintf(
+                    "*read* expects length to be an integer, not \"%s\"",
+                    $length
+                ));
+            }
+            $conn->read((int) $length);
+            return;
         }
 
         throw new InvalidArgumentException("Invalid command {$cmd}");

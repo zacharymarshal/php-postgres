@@ -115,4 +115,70 @@ read 25
 IN;
         $play_cmd->run($input);
     }
+
+    public function testReadMessageCommand()
+    {
+        $conn = $this->createMock(ConnectionInterface::class);
+        $conn->expects($this->once())
+            ->method('readMessage');
+
+        $play_cmd = new PlayCommand($conn);
+        $input = <<<'IN'
+readMessage
+IN;
+        $play_cmd->run($input);
+    }
+
+    public function testReadByteCommand()
+    {
+        $conn = $this->createMock(ConnectionInterface::class);
+        $conn->expects($this->once())
+            ->method('readByte');
+
+        $play_cmd = new PlayCommand($conn);
+        $input = <<<'IN'
+readByte
+IN;
+        $play_cmd->run($input);
+    }
+
+    public function testReadInt32Command()
+    {
+        $conn = $this->createMock(ConnectionInterface::class);
+        $conn->expects($this->once())
+            ->method('readInt32');
+
+        $play_cmd = new PlayCommand($conn);
+        $input = <<<'IN'
+readInt32
+IN;
+        $play_cmd->run($input);
+    }
+    
+    public function testPuttingItAllTogether()
+    {
+        $conn = $this->createMock(ConnectionInterface::class);
+        $conn->expects($this->once())
+            ->method('write')
+            ->with($this->equalTo('p::ident "hello"::string'));
+        $conn->expects($this->once())
+            ->method('readByte');
+        $conn->expects($this->once())
+            ->method('readInt32');
+        $conn->expects($this->once())
+            ->method('read')
+            ->with($this->equalTo(35));
+        $conn->expects($this->once())
+            ->method('readMessage');
+
+        $play_cmd = new PlayCommand($conn);
+        $input = <<<'IN'
+write p::ident "hello"::string
+readByte
+readInt32
+read 35
+readMessage
+IN;
+        $play_cmd->run($input);
+    }
 }

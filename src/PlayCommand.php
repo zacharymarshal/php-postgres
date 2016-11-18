@@ -38,8 +38,6 @@ class PlayCommand
     /**
      * @param string $input
      * @return bool
-     * @internal param ConnectionInterface $conn
-     * @internal param array $options
      */
     public function run(string $input): bool
     {
@@ -73,6 +71,15 @@ class PlayCommand
                 ));
             }
             $conn->read((int) $length);
+            return;
+        } elseif (substr($cmd, 0, 11) === 'readMessage') {
+            $conn->readMessage();
+            return;
+        } elseif (substr($cmd, 0, 8) === 'readByte') {
+            $conn->readByte();
+            return;
+        } elseif (substr($cmd, 0, 9) === 'readInt32') {
+            $conn->readInt32();
             return;
         }
 

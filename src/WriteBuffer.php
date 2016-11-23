@@ -59,6 +59,15 @@ class WriteBuffer
      */
     public function writeString($str)
     {
-        $this->msg .= $str;
+        $this->write($str);
+        $this->writeNUL();
+    }
+
+    /**
+     * @param string $bytes
+     */
+    public function write(string $bytes)
+    {
+        $this->msg .= $bytes;
     }
 }

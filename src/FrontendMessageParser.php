@@ -58,15 +58,14 @@ class FrontendMessageParser
             }
         }
 
-        $msg = new WriteBuffer();
-        $msg->writeString($this->ident);
+        $buff_start = new WriteBuffer();
+        $buff_start->writeIdent($this->ident);
         if ($this->include_length === true) {
             // message length including the length itself–4 bytes
-            $msg->writeInt32(strlen($buff) + 4);
+            $buff_start->writeInt32(strlen($buff) + 4);
         }
-        $msg->writeString($buff->__toString());
 
-        return $msg;
+        return $buff_start . $buff;
     }
 
     /**

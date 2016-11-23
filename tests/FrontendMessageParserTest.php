@@ -25,24 +25,24 @@ class FrontendMessageParserTest extends TestCase
     {
         return [
             [
-                'Q::ident LENGTH "SELECT 1"::string NUL',
-                'Q' . pack('N', 13) . "SELECT 1\0"
+                'Q::ident LENGTH "SELECT 1"',
+                pack('aNZ*', 'Q', (4 + 8 + 1), "SELECT 1")
             ],
             [
                 'LENGTH 3::int16 0::int16 NUL',
-                pack('N', 9) . pack('n', 3) . pack('n', 0) . "\0"
+                pack('Nnnx', (4 + 4 + 1), 3, 0)
             ],
             [
-                'LENGTH 3::int16 0::int16 "user" NUL "postgres" NUL "database" NUL "postgres" NUL NUL',
-                pack('N', 41) . pack('n', 3) . pack('n', 0) . "user\0postgres\0database\0postgres\0\0"
+                'LENGTH 3::int16 0::int16 "user" "postgres" "database" "postgres" NUL',
+                pack('NnnZ*Z*Z*Z*x', (4 + 36 + 1), 3, 0, "user", "postgres", "database", "postgres")
             ],
             [
-                'Q::ident LENGTH "SELECT 1"::string NUL',
-                'Q' . pack('N', 13) . "SELECT 1\0"
+                'Q::ident LENGTH "SELECT 1 FROM "table""::string',
+                pack('aNZ*', 'Q', (4 + 21 + 1), 'SELECT 1 FROM "table"')
             ],
             [
-                'Q::ident 13::int32 "SELECT 1"::string NUL',
-                'Q' . pack('N', 13) . "SELECT 1\0"
+                'Q::ident 13::int32 "SELECT 1"::string',
+                pack('aNZ*', 'Q', (4 + 8 + 1), "SELECT 1")
             ]
         ];
     }

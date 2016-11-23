@@ -12,7 +12,7 @@ class WriteBufferTest extends TestCase
         $msg = new WriteBuffer();
         $this->assertEquals("", "{$msg}");
     }
-    
+
     public function testWritingMessageIdentifier()
     {
         $msg = new WriteBuffer();
@@ -48,8 +48,8 @@ class WriteBufferTest extends TestCase
     public function testWritingString()
     {
         $msg = new WriteBuffer();
-        $msg->writeString("hello world");
-        $this->assertEquals("hello world", "{$msg}");
+        $msg->writeString("SELECT 1");
+        $this->assertEquals("SELECT 1\0", "{$msg}");
     }
 
     public function testWritingStartupMessage()
@@ -57,14 +57,10 @@ class WriteBufferTest extends TestCase
         $msg = new WriteBuffer();
         $msg->writeInt16(3);                // 2
         $msg->writeInt16(0);                // 2
-        $msg->writeString('user');          // 4
-        $msg->writeNUL();                   // 1
-        $msg->writeString('zacharyrankin'); // 13
-        $msg->writeNUL();                   // 1
-        $msg->writeString('database');      // 8
-        $msg->writeNUL();                   // 1
-        $msg->writeString('postgres');      // 8
-        $msg->writeNUL();                   // 1
+        $msg->writeString('user');          // 5
+        $msg->writeString('zacharyrankin'); // 14
+        $msg->writeString('database');      // 9
+        $msg->writeString('postgres');      // 9
         $msg->writeNUL();                   // 1
         $this->assertEquals(42, strlen($msg));
     }

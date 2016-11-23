@@ -27,7 +27,7 @@ class WriteBuffer
      */
     public function writeIdent($ident)
     {
-        $this->msg .= $ident;
+        $this->write($ident);
     }
 
     /**
@@ -35,7 +35,7 @@ class WriteBuffer
      */
     public function writeNUL()
     {
-        $this->msg .= "\0";
+        $this->write(pack('x'));
     }
 
     /**
@@ -43,7 +43,7 @@ class WriteBuffer
      */
     public function writeInt32($int)
     {
-        $this->msg .=  pack('N', $int);
+        $this->write(pack('N', $int));
     }
 
     /**
@@ -51,7 +51,7 @@ class WriteBuffer
      */
     public function writeInt16($int)
     {
-        $this->msg .= pack('n', $int);
+        $this->write(pack('n', $int));
     }
 
     /**
@@ -59,6 +59,15 @@ class WriteBuffer
      */
     public function writeString($str)
     {
-        $this->msg .= $str;
+        $this->write($str);
+        $this->writeNUL();
+    }
+
+    /**
+     * @param string $bytes
+     */
+    public function write(string $bytes)
+    {
+        $this->msg .= $bytes;
     }
 }

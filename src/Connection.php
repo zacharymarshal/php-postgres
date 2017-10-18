@@ -105,8 +105,7 @@ class Connection
                     if ($col_val_len === -1) {
                         $value = null;
                     } elseif ($col_val_len === 0) {
-                        $value = 0;
-                        $buf->readByte();
+                        $value = '';
                     } else {
                         $value = $buf->read($col_val_len);
                     }

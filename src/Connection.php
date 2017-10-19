@@ -98,11 +98,8 @@ class Connection
                 $num_cols = $buf->readInt16();
                 for ($i = 0; $i < $num_cols; $i++) {
                     $col_val_len = $buf->readInt32();
-                    if ($col_val_len === 4294967295) {
-                        $col_val_len = -1;
-                    }
 
-                    if ($col_val_len === -1) {
+                    if ($col_val_len === 0xFFFFFFFF) {
                         $value = null;
                     } elseif ($col_val_len === 0) {
                         $value = '';

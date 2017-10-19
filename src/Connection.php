@@ -33,7 +33,7 @@ class Connection
             $socket,
             $error_code,
             $error_message,
-            $this->connect_timeout ?? ini_get('default_socket_timeout')
+            $this->connect_timeout ?: ini_get('default_socket_timeout')
         );
 
         if (!$this->conn) {

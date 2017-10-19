@@ -4,6 +4,25 @@
 
 php-postgres is a pure php postgres client designed to help developers understand what is happening when they send a query to Postgres.
 
+### Testing
+
+Run this SQL:
+
+```
+CREATE DATABASE php_postgres_testing;
+CREATE USER php_postgres_no_passwd;
+CREATE USER php_postgres_plaintext_passwd PASSWORD 'secret';
+```
+
+Comment out the `all all localhost trust`.
+
+Add this to the pg_hba.conf:
+
+```
+host  php_postgres_testing  php_postgres_no_passwd        127.0.0.1/32 trust
+host  php_postgres_testing  php_postgres_plaintext_passwd 127.0.0.1/32 password
+```
+
 ### CLI Usage
 
 ```

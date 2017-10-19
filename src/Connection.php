@@ -63,7 +63,16 @@ class Connection
 
         while (true) {
             list($ident, , $buf) = $this->readMessage();
-            if ($ident === 'Z' || $ident === 'E') {
+
+            if ($ident === 'R') {
+                $this->authenticate($buf);
+            }
+
+            if ($ident === 'E') {
+                throw new PostgresException("Error connecting to {$user}@{$database}");
+            }
+
+            if ($ident === 'Z') {
                 return;
             }
         }
@@ -169,5 +178,36 @@ class Connection
         }
 
         return $buffer;
+    }
+
+    private function authenticate(ReadBuffer $buf): bool
+    {
+        $auth_code = $buf->readInt32();
+
+        // Authentication successful
+        if ($auth_code === 0) {
+            return true;
+        }
+
+        // Plain text authentication
+        if ($auth_code === 3) {
+            $password = parse_url($this->url, PHP_URL_PASS);
+            $msg = pack('Z*', $password);
+            $msg = pack('a1N', 'p', strlen($msg) + 4) . $msg;
+            $this->write($msg);
+
+            list($ident, , $buf) = $this->readMessage();
+            if ($ident !== 'R') {
+                throw new PostgresException(sprintf("Failed to authenticate."
+                    . " Unexpected message '%s'.", $ident));
+            }
+            $auth_code = $buf->readInt32();
+            if ($auth_code !== 0) {
+                throw new PostgresException(sprintf("Failed to authenticate."
+                    . " Unexpected auth code '%s'", $auth_code));
+            }
+
+            return true;
+        }
     }
 }

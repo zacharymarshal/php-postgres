@@ -146,9 +146,9 @@ class Connection
     {
         $ident = $this->readByte();
         $length = $this->readInt32() - 4; // includes itself
-        $buffer = new ReadBuffer($this->read($length));
+        $buf = new ReadBuffer($this->read($length));
 
-        return [$ident, $length, $buffer];
+        return [$ident, $length, $buf];
     }
 
     private function readByte(): string
@@ -156,9 +156,6 @@ class Connection
         return $this->read(1);
     }
 
-    /**
-     * @return int
-     */
     private function readInt32(): int
     {
         $unpack = unpack('Nint32', $this->read(4));
@@ -166,18 +163,14 @@ class Connection
         return $unpack['int32'];
     }
 
-    /**
-     * @param int $len
-     * @return string
-     */
     private function read(int $len): string
     {
-        $buffer = fread($this->conn, $len);
-        if ($buffer === false) {
+        $buf = fread($this->conn, $len);
+        if ($buf === false) {
             throw new PostgresException("Failed to read from postgres");
         }
 
-        return $buffer;
+        return $buf;
     }
 
     private function authenticate(ReadBuffer $buf): bool

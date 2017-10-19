@@ -28,7 +28,7 @@
         "phpunit/phpunit": "^6.4"
     },
     "scripts": {
-        "test": "vendor/bin/phpunit",
+        "test": "vendor/bin/phpunit tests/",
         "lint": "vendor/bin/phpmd src/ text phpmd-ruleset.xml"
     }
 }

@@ -78,6 +78,16 @@ class Connection
         }
     }
 
+    public function close(): bool
+    {
+        if (fclose($this->conn) !== true) {
+            throw new PostgresException("Failed to close connection.");
+        }
+        $this->conn = null;
+
+        return true;
+    }
+
     public function query(string $sql): array
     {
         $msg = pack('Z*', $sql);
@@ -202,5 +212,37 @@ class Connection
 
             return true;
         }
+
+        // MD5 authentication
+        if ($auth_code === 5) {
+            $user = parse_url($this->url, PHP_URL_USER);
+            $password = parse_url($this->url, PHP_URL_PASS);
+            $salt = $buf->read(4);
+            $encrypted_passwd = 'md5' . md5(md5($password . $user) . $salt);
+
+            $msg = pack('Z*', $encrypted_passwd);
+            $msg = pack('a1N', 'p', strlen($msg) + 4) . $msg;
+            $this->write($msg);
+
+            list($ident, , $buf) = $this->readMessage();
+            if ($ident !== 'R') {
+                throw new PostgresException(sprintf("Failed to authenticate."
+                    . " Unexpected message '%s'.", $ident));
+            }
+            $auth_code = $buf->readInt32();
+            if ($auth_code !== 0) {
+                throw new PostgresException(sprintf("Failed to authenticate."
+                    . " Unexpected auth code '%s'", $auth_code));
+            }
+
+            return true;
+        }
+
+        // If the frontend does not support the authentication method requested
+        // by the server, then it should immediately close the connection
+        $this->close();
+
+        throw new PostgresException(sprintf("Failed to authenticate."
+            . " Unsupported auth code '%s'", $auth_code));
     }
 }

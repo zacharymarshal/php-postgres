@@ -12,15 +12,21 @@ Run this SQL:
 CREATE DATABASE php_postgres_testing;
 CREATE USER php_postgres_no_passwd;
 CREATE USER php_postgres_plaintext_passwd PASSWORD 'secret';
+CREATE USER php_postgres_md5_passwd PASSWORD 'secret';
 ```
 
-Comment out the `all all localhost trust`.
+Comment out the
+
+```
+# host    all             all             127.0.0.1/32            trust
+```
 
 Add this to the pg_hba.conf:
 
 ```
 host  php_postgres_testing  php_postgres_no_passwd        127.0.0.1/32 trust
 host  php_postgres_testing  php_postgres_plaintext_passwd 127.0.0.1/32 password
+host  php_postgres_testing  php_postgres_md5_passwd       127.0.0.1/32 md5
 ```
 
 ### CLI Usage

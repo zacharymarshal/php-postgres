@@ -16,6 +16,8 @@ class ReadBuffer
      */
     private $buffer;
 
+    private $offset = 0;
+
     /**
      * @param string $buffer
      */
@@ -29,7 +31,7 @@ class ReadBuffer
      */
     public function __toString(): string
     {
-        return $this->buffer;
+        return $this->read();
     }
 
     /**
@@ -58,13 +60,15 @@ class ReadBuffer
      */
     public function readString(): string
     {
-        $nul_pos = strpos($this->buffer, "\0");
-        if ($nul_pos === false) {
-            throw new Exception("Could not read string.  Missing string terminator NUL.");
+        $str = '';
+        while ($char = $this->read(1)) {
+            if ($char === "\0") {
+                break;
+            }
+            $str .= $char;
         }
-        $string = rtrim($this->read($nul_pos + 1), "\0");
 
-        return $string;
+        return $str;
     }
 
     /**
@@ -81,10 +85,10 @@ class ReadBuffer
      * @param int $length
      * @return string
      */
-    public function read(int $length): string
+    public function read(int $length = null): string
     {
-        $bytes = substr($this->buffer, 0, $length);
-        $this->buffer = substr($this->buffer, $length);
+        $bytes = substr($this->buffer, $this->offset, $length);
+        $this->offset += $length;
 
         return $bytes;
     }

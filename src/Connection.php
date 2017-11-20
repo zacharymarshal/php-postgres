@@ -131,10 +131,26 @@ class Connection
             }
 
             if ($ident === 'E') {
-                throw new PostgresException("Error running query");
+                // https://www.postgresql.org/docs/current/static/protocol-error-fields.html
+                // https://www.postgresql.org/docs/current/static/errcodes-appendix.html
+                while ($field_type = $buf->readByte()) {
+                    if ($field_type === "\0") {
+                        break;
+                    }
+                    var_dump($field_type, $buf->readString());
+                }
+                // throw new PostgresException("Error running query");
             }
 
             if ($ident === 'Z') {
+                $tn_status = $buf->readByte();
+                $tn_statuses = [
+                    'I' => "idle (not in a transaction block)",
+                    'T' => "in a transaction block",
+                    'E' => "in a failed transaction block (queries will be rejected until block is ended)",
+                ];
+                var_dump("TxStatus: $tn_status");
+
                 break;
             }
         }

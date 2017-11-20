@@ -4,6 +4,23 @@
 
 php-postgres is a pure php postgres client designed to help developers understand what is happening when they send a query to Postgres.
 
+## Usage
+
+```
+$conn = new Postgres\Connection('postgres://localhost/zacharyrankin');
+$conn->connect();
+
+$sql = <<<SQL
+SELECT
+    datname,
+    usename,
+    application_name,
+    query
+FROM pg_stat_activity;
+SQL;
+$rows = $conn->query($sql);
+```
+
 ### Testing
 
 Run this SQL:
@@ -13,6 +30,7 @@ CREATE DATABASE php_postgres_testing;
 CREATE USER php_postgres_no_passwd;
 CREATE USER php_postgres_plaintext_passwd PASSWORD 'secret';
 CREATE USER php_postgres_md5_passwd PASSWORD 'secret';
+GRANT ALL PRIVILEGES ON DATABASE php_postgres_testing TO php_postgres_no_passwd;
 ```
 
 Comment out the

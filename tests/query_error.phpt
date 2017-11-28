@@ -26,10 +26,9 @@ try {
         $conn->query("ROLLBACK");
     }
 } catch (Exception $e) {
-    var_dump($e);
+    var_dump($e->getMessage());
 }
-
-var_dump($conn->query("SELECT 1"));
 
 ?>
 --EXPECTF--
+string(%d) "Error running query"

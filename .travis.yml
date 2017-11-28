@@ -1,8 +1,23 @@
 language: php
 php:
-  - '7.0'
+  - '7.1'
   - nightly
+addons:
+  postgresql: "9.6"
+services:
+  - postgresql
 before_script:
+  - psql -c 'CREATE DATABASE php_postgres_testing;' -U postgres
+  - psql -c 'CREATE USER php_postgres_no_passwd;' -U postgres
+  - psql -c "CREATE USER php_postgres_plaintext_passwd PASSWORD 'secret';" -U postgres
+  - psql -c "CREATE USER php_postgres_md5_passwd PASSWORD 'secret';" -U postgres
+  - psql -c 'GRANT ALL PRIVILEGES ON DATABASE php_postgres_testing TO php_postgres_no_passwd;' -U postgres
+  - sudo sh -c 'echo "host  php_postgres_testing  php_postgres_no_passwd        localhost trust" > /etc/postgresql/9.6/main/pg_hba.conf'
+
+  - sudo sh -c 'echo "host  php_postgres_testing  php_postgres_plaintext_passwd localhost password" > /etc/postgresql/9.6/main/pg_hba.conf'
+
+  - sudo sh -c 'echo "host  php_postgres_testing  php_postgres_md5_passwd       localhost md5" > /etc/postgresql/9.6/main/pg_hba.conf'
+
   - composer install
 script:
   - composer run test

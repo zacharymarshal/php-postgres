@@ -33,18 +33,12 @@ CREATE USER php_postgres_md5_passwd PASSWORD 'secret';
 GRANT ALL PRIVILEGES ON DATABASE php_postgres_testing TO php_postgres_no_passwd;
 ```
 
-Comment out the
-
-```
-# host    all             all             127.0.0.1/32            trust
-```
-
 Add this to the pg_hba.conf:
 
 ```
-host  php_postgres_testing  php_postgres_no_passwd        127.0.0.1/32 trust
-host  php_postgres_testing  php_postgres_plaintext_passwd 127.0.0.1/32 password
-host  php_postgres_testing  php_postgres_md5_passwd       127.0.0.1/32 md5
+host  php_postgres_testing  php_postgres_no_passwd        localhost trust
+host  php_postgres_testing  php_postgres_plaintext_passwd localhost password
+host  php_postgres_testing  php_postgres_md5_passwd       localhost md5
 ```
 
 ### CLI Usage

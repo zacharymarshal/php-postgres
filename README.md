@@ -6,7 +6,7 @@ php-postgres is a pure php postgres client designed to help developers understan
 
 ## Usage
 
-```
+```php
 $conn = new Postgres\Connection('postgres://localhost/zacharyrankin');
 $conn->connect();
 
@@ -25,7 +25,7 @@ $rows = $conn->query($sql);
 
 Run this SQL:
 
-```
+```sql
 CREATE DATABASE php_postgres_testing;
 CREATE USER php_postgres_no_passwd;
 CREATE USER php_postgres_plaintext_passwd PASSWORD 'secret';
@@ -35,7 +35,7 @@ GRANT ALL PRIVILEGES ON DATABASE php_postgres_testing TO php_postgres_no_passwd;
 
 Add this to the pg_hba.conf:
 
-```
+```sql
 host  php_postgres_testing  php_postgres_no_passwd        localhost trust
 host  php_postgres_testing  php_postgres_plaintext_passwd localhost password
 host  php_postgres_testing  php_postgres_md5_passwd       localhost md5
@@ -43,7 +43,7 @@ host  php_postgres_testing  php_postgres_md5_passwd       localhost md5
 
 ### CLI Usage
 
-```
+```bash
 bin/php-postgres play
 # send startup message
 > send LENGTH 3::int16 0::int16 "user" "zacharyrankin" "database" "postgres" NUL
